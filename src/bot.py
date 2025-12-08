@@ -10,6 +10,18 @@ async def start(update, context):
     await send_photo(update, context, session.mode)
     await send_text(update, context, text)
 
+    user_id = update.message.from_user.id
+    create_user_dir(user_id)
+
+    await show_main_menu(update, context, {
+        "start": "🧟‍♂️ Главное меню бота",
+        "image": "⚰️ Создаем картинку",
+        "edit": "🧙‍♂️ Изменяем картинку",
+        "merge": "📸 Объединяем картинки",
+        "party": "🎃 Фото для Halloween - вечеринки",
+        "video": "🎬☠️ страшное Halloween-видео из фото ",
+    })
+
 
 # тут будем писать наш код :)
 async def hello(update, context):
