@@ -5,8 +5,9 @@ from util import *
 
 
 async def start(update, context):
-    text = load_message('main')
-    await send_photo(update, context, 'main')
+    session.mode = 'main'
+    text = load_message(session.mode)
+    await send_photo(update, context, session.mode)
     await send_text(update, context, text)
 
 
@@ -32,6 +33,10 @@ async def hello_button(update, context):
 
 # Создаем Telegram-бота
 app = ApplicationBuilder().token(os.getenv("TELEGRAM_TOKEN")).build()
+# Подключаем обработчик ошибок
+app.add_error_handler(error_handler)
+
+session.mode = None
 
 # Регистрируем (подключаем) созданные функции
 app.add_handler(CommandHandler("start", start))
