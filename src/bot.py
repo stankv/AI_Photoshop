@@ -23,6 +23,16 @@ async def start(update, context):
     })
 
 
+async def create_command(update, context):
+    session.mode = 'create'
+    text = load_message(session.mode)
+    await send_photo(update, context, session.mode)
+    await send_text_buttons(update, context, text, {
+        "create_anime": "👧️ Аниме",
+        "create_photo": "📸 Фото",
+    })
+
+
 # тут будем писать наш код :)
 async def hello(update, context):
     await send_text(update, context, "Привет!")
@@ -52,6 +62,7 @@ session.mode = None
 
 # Регистрируем (подключаем) созданные функции
 app.add_handler(CommandHandler("start", start))
+app.add_handler(CommandHandler("image", create_command))
 app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, hello))
 app.add_handler(CallbackQueryHandler(hello_button))
 app.run_polling()
