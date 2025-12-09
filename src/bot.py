@@ -63,9 +63,24 @@ async def edit_command(update, context):
     await send_text(update, context, text)
 
 
+async def edit_message(update, context):
+    text = update.message.text
+    user_id = update.message.from_user.id
+    photo_path = f'resources/users/{user_id}/photo.jpg'
+    prompt = load_prompt(session.mode)
+    ai_edit_image(
+        input_image_path=photo_path,
+        prompt=prompt + text,
+        output_path=photo_path
+    )
+    await send_photo(update, context, photo_path)
+
+
 async def on_message(update, context):
     if session.mode == 'create':
         await create_message(update, context)
+    elif session.mode == 'edit':
+        await edit_message(update, context)
     else:
         await send_text(update, context, "Привет!")
         await send_text(update, context, "Вы написали ..." + update.message.text)
