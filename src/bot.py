@@ -30,7 +30,7 @@ async def create_command(update, context):
     await send_text_buttons(update, context, text, {
         "create_anime": "👧️ Аниме",
         "create_photo": "📸 Фото",
-    })
+    }, checkbox_key=session.image_type)
 
 
 # тут будем писать наш код :)
@@ -44,13 +44,17 @@ async def hello(update, context):
                                              "stop": "Остановить",
     })
 
-async def hello_button(update, context):
-    query = update.callback_query.data
 
-    if query == "start":
-        await send_text(update, context, "Процесс запущен!")
-    else:
-        await send_text(update, context, "Процесс остановлен!")
+async def create_button(update, context):
+    await update.callback_query.answer()
+    query = update.callback_query.data
+    session.image_type = query
+    text = load_message(session.mode)
+    message = update.callback_query.message
+    await edit_text_buttons(message, text, {
+        "create_anime": "👧️ Аниме",
+        "create_photo": "📸 Фото",
+    }, checkbox_key=session.image_type)
 
 
 # Создаем Telegram-бота
@@ -59,10 +63,11 @@ app = ApplicationBuilder().token(os.getenv("TELEGRAM_TOKEN")).build()
 app.add_error_handler(error_handler)
 
 session.mode = None
+session.image_type = 'create_anime'
 
 # Регистрируем (подключаем) созданные функции
 app.add_handler(CommandHandler("start", start))
 app.add_handler(CommandHandler("image", create_command))
 app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, hello))
-app.add_handler(CallbackQueryHandler(hello_button))
+app.add_handler(CallbackQueryHandler(create_button, pattern='^create_.*'))
 app.run_polling()
