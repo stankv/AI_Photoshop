@@ -56,6 +56,13 @@ async def create_message(update, context):
     await send_photo(update, context, photo_path)
 
 
+async def edit_command(update, context):
+    session.mode = 'edit'
+    text = load_message(session.mode)
+    await send_photo(update, context, session.mode)
+    await send_text(update, context, text)
+
+
 async def on_message(update, context):
     if session.mode == 'create':
         await create_message(update, context)
@@ -63,10 +70,6 @@ async def on_message(update, context):
         await send_text(update, context, "Привет!")
         await send_text(update, context, "Вы написали ..." + update.message.text)
 
-        # await send_text_buttons(update, context, "Запустить процесс?", {
-        #                                      "start": "Запустить",
-        #                                      "stop": "Остановить",
-        # })
 
 # Создаем Telegram-бота
 app = ApplicationBuilder().token(os.getenv("TELEGRAM_TOKEN")).build()
@@ -79,6 +82,7 @@ session.image_type = 'create_anime'
 # Регистрируем (подключаем) созданные функции
 app.add_handler(CommandHandler("start", start))
 app.add_handler(CommandHandler("image", create_command))
+app.add_handler(CommandHandler("edit", edit_command))
 app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, on_message))
 app.add_handler(CallbackQueryHandler(create_button, pattern='^create_.*'))
 app.run_polling()
