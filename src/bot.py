@@ -33,18 +33,6 @@ async def create_command(update, context):
     }, checkbox_key=session.image_type)
 
 
-# тут будем писать наш код :)
-async def hello(update, context):
-    await send_text(update, context, "Привет!")
-    await send_text(update, context, "Как дела, *дружище*?")
-    await send_text(update, context, "Ты написал ..." + update.message.text)
-
-    await send_text_buttons(update, context, "Запустить процесс?", {
-                                             "start": "Запустить",
-                                             "stop": "Остановить",
-    })
-
-
 async def create_button(update, context):
     await update.callback_query.answer()
     query = update.callback_query.data
@@ -57,6 +45,29 @@ async def create_button(update, context):
     }, checkbox_key=session.image_type)
 
 
+async def create_message(update, context):
+    text = update.message.text
+    user_id = update.message.from_user.id
+
+    photo_path = f'resources/users/{user_id}/photo.jpg'
+    prompt = load_prompt(session.image_type)
+
+    ai_create_image(prompt=prompt + text, output_path=photo_path)
+    await send_photo(update, context, photo_path)
+
+
+async def on_message(update, context):
+    if session.mode == 'create':
+        await create_message(update, context)
+    else:
+        await send_text(update, context, "Привет!")
+        await send_text(update, context, "Вы написали ..." + update.message.text)
+
+        # await send_text_buttons(update, context, "Запустить процесс?", {
+        #                                      "start": "Запустить",
+        #                                      "stop": "Остановить",
+        # })
+
 # Создаем Telegram-бота
 app = ApplicationBuilder().token(os.getenv("TELEGRAM_TOKEN")).build()
 # Подключаем обработчик ошибок
@@ -68,6 +79,6 @@ session.image_type = 'create_anime'
 # Регистрируем (подключаем) созданные функции
 app.add_handler(CommandHandler("start", start))
 app.add_handler(CommandHandler("image", create_command))
-app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, hello))
+app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, on_message))
 app.add_handler(CallbackQueryHandler(create_button, pattern='^create_.*'))
 app.run_polling()
