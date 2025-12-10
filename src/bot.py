@@ -12,6 +12,7 @@ async def start(update, context):
 
     user_id = update.message.from_user.id
     create_user_dir(user_id)
+    await hide_main_menu(update, context)
 
     await show_main_menu(update, context, {
         "start": "🧟‍♂️ Главное меню бота",
@@ -92,6 +93,18 @@ async def save_photo(update, context):
     await send_text(update, context, "Фото подготовлено к работе")
 
 
+async def merge_command(update, context):
+    session.mode = 'merge'
+    text = load_message(session.mode)
+    await send_photo(update, context, session.mode)
+    await send_text_buttons(update, context, text, {
+        "merge_join": "Просто объединить картинки",
+        "merge_first": "Добавить всех на первую картинку",
+        "merge_last": "Добавить всех на последнюю картинку",
+    })
+
+
+
 async def on_message(update, context):
     if session.mode == 'create':
         await create_message(update, context)
@@ -114,6 +127,7 @@ session.image_type = 'create_anime'
 app.add_handler(CommandHandler("start", start))
 app.add_handler(CommandHandler("image", create_command))
 app.add_handler(CommandHandler("edit", edit_command))
+app.add_handler(CommandHandler("merge", merge_command))
 app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, on_message))
 app.add_handler(MessageHandler(filters.PHOTO & ~filters.COMMAND, save_photo))
 app.add_handler(CallbackQueryHandler(create_button, pattern='^create_.*'))
