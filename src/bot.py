@@ -121,6 +121,26 @@ async def merge_add_photo(update, context):
     await send_text(update, context, f"{image_count} фото подготовлено к работе")
 
 
+async def merge_button(update, context):
+    await update.callback_query.answer()
+    query = update.callback_query.data
+    user_id = update.callback_query.from_user.id
+    result_path = f'resources/users/{user_id}/result.jpg'
+
+    image_count = len(session.image_list)
+    if image_count < 2:
+        await send_text(update, context, "Сначала загрузите ваши фото")
+        return
+
+    prompt = load_prompt(query)
+    ai_merge_image(
+            input_image_path_list=session.image_list,
+            prompt=prompt,
+            output_path=result_path
+    )
+    await send_photo(update, context, result_path)
+
+
 async def on_message(update, context):
     if session.mode == 'create':
         await create_message(update, context)
@@ -152,7 +172,11 @@ app.add_handler(CommandHandler("start", start))
 app.add_handler(CommandHandler("image", create_command))
 app.add_handler(CommandHandler("edit", edit_command))
 app.add_handler(CommandHandler("merge", merge_command))
+
 app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, on_message))
 app.add_handler(MessageHandler(filters.PHOTO & ~filters.COMMAND, on_photo))
+
 app.add_handler(CallbackQueryHandler(create_button, pattern='^create_.*'))
+app.add_handler(CallbackQueryHandler(merge_button, pattern='^merge_.*'))
+
 app.run_polling()
