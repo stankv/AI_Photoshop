@@ -67,6 +67,11 @@ async def edit_message(update, context):
     text = update.message.text
     user_id = update.message.from_user.id
     photo_path = f'resources/users/{user_id}/photo.jpg'
+
+    if not os.path.exists(photo_path):
+        await send_text(update, context, "Сначала загрузите илисоздайте картинку")
+        return
+
     prompt = load_prompt(session.mode)
     ai_edit_image(
         input_image_path=photo_path,
@@ -74,6 +79,17 @@ async def edit_message(update, context):
         output_path=photo_path
     )
     await send_photo(update, context, photo_path)
+
+
+async def save_photo(update, context):
+    photo = update.message.photo[-1]
+
+    file = await context.bot.get_file(photo.file_id)
+    user_id = update.message.from_user.id
+    photo_path = f'resources/users/{user_id}/photo.jpg'
+    await file.download_to_drive(photo_path)
+
+    await send_text(update, context, "Фото подготовлено к работе")
 
 
 async def on_message(update, context):
@@ -99,5 +115,6 @@ app.add_handler(CommandHandler("start", start))
 app.add_handler(CommandHandler("image", create_command))
 app.add_handler(CommandHandler("edit", edit_command))
 app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, on_message))
+app.add_handler(MessageHandler(filters.PHOTO & ~filters.COMMAND, save_photo))
 app.add_handler(CallbackQueryHandler(create_button, pattern='^create_.*'))
 app.run_polling()
