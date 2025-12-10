@@ -95,6 +95,7 @@ async def save_photo(update, context):
 
 async def merge_command(update, context):
     session.mode = 'merge'
+    session.image_list.clear()
     text = load_message(session.mode)
     await send_photo(update, context, session.mode)
     await send_text_buttons(update, context, text, {
@@ -103,6 +104,21 @@ async def merge_command(update, context):
         "merge_last": "Добавить всех на последнюю картинку",
     })
 
+
+async def merge_add_photo(update, context):
+    photo = update.message.photo[-1]
+    file = await context.bot.get_file(photo.file_id)
+
+    image_count = len(session.image_list) + 1
+
+    user_id = update.message.from_user.id
+
+    photo_path = f'resources/users/{user_id}/photo{image_count}.jpg'
+    await file.download_to_drive(photo_path)
+
+    session.image_list.append(photo_path)
+
+    await send_text(update, context, f"{image_count} фото подготовлено к работе")
 
 
 async def on_message(update, context):
@@ -115,6 +131,13 @@ async def on_message(update, context):
         await send_text(update, context, "Вы написали ..." + update.message.text)
 
 
+async def on_photo(update, context):
+    if session.mode == 'merge':
+        await merge_add_photo(update, context)
+    else:
+        await save_photo(update, context)
+
+
 # Создаем Telegram-бота
 app = ApplicationBuilder().token(os.getenv("TELEGRAM_TOKEN")).build()
 # Подключаем обработчик ошибок
@@ -122,6 +145,7 @@ app.add_error_handler(error_handler)
 
 session.mode = None
 session.image_type = 'create_anime'
+session.image_list = []
 
 # Регистрируем (подключаем) созданные функции
 app.add_handler(CommandHandler("start", start))
@@ -129,6 +153,6 @@ app.add_handler(CommandHandler("image", create_command))
 app.add_handler(CommandHandler("edit", edit_command))
 app.add_handler(CommandHandler("merge", merge_command))
 app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, on_message))
-app.add_handler(MessageHandler(filters.PHOTO & ~filters.COMMAND, save_photo))
+app.add_handler(MessageHandler(filters.PHOTO & ~filters.COMMAND, on_photo))
 app.add_handler(CallbackQueryHandler(create_button, pattern='^create_.*'))
 app.run_polling()
