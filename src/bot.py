@@ -176,6 +176,21 @@ async def party_button(update, context):
     await send_photo(update, context, result_path)
 
 
+async def video_command(update, context):
+    session.mode = 'video'
+    text = load_message(session.mode)
+
+    await send_photo(update, context, session.mode)
+
+    await  send_text_buttons(update, context, text, {
+        "video1": "🌕 Лунное затмение (оборотень)",
+        "video2": "🩸 Проклятое зеркало (вампир)",
+        "video3": "🧙‍♀️ Ведьмин круг (дым и руны)",
+        "video4": "🧟 Гниение времени (зомби)",
+        "video5": "😈 Пентаграмма призыва (демон)",
+    })
+
+
 async def on_message(update, context):
     if session.mode == 'create':
         await create_message(update, context)
@@ -208,6 +223,7 @@ app.add_handler(CommandHandler("image", create_command))
 app.add_handler(CommandHandler("edit", edit_command))
 app.add_handler(CommandHandler("merge", merge_command))
 app.add_handler(CommandHandler("party", party_command))
+app.add_handler(CommandHandler("video", video_command))
 
 app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, on_message))
 app.add_handler(MessageHandler(filters.PHOTO & ~filters.COMMAND, on_photo))
