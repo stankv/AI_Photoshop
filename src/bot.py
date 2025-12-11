@@ -141,6 +141,21 @@ async def merge_button(update, context):
     await send_photo(update, context, result_path)
 
 
+async def party_command(update, context):
+    session.mode = 'party'
+    text = load_message(session.mode)
+
+    await send_photo(update, context, session.mode)
+
+    await  send_text_buttons(update, context, text, {
+        "party_image1": "🐺 Лунное затмение (оборотень)",
+        "party_image2": "🦇 Проклятое зеркало (вампир)",
+        "party_image3": "🔮 Ведьмин круг (дым и руны)",
+        "party_image4": "🧟 Гниение времени (зомби)",
+        "party_image5": "😈 Призыв демона (демон)",
+    })
+
+
 async def on_message(update, context):
     if session.mode == 'create':
         await create_message(update, context)
@@ -172,6 +187,7 @@ app.add_handler(CommandHandler("start", start))
 app.add_handler(CommandHandler("image", create_command))
 app.add_handler(CommandHandler("edit", edit_command))
 app.add_handler(CommandHandler("merge", merge_command))
+app.add_handler(CommandHandler("party", party_command))
 
 app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, on_message))
 app.add_handler(MessageHandler(filters.PHOTO & ~filters.COMMAND, on_photo))
