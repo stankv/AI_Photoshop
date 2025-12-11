@@ -156,6 +156,26 @@ async def party_command(update, context):
     })
 
 
+async def party_button(update, context):
+    await update.callback_query.answer()
+    query = update.callback_query.data
+    user_id = update.callback_query.from_user.id
+    photo_path = f'resources/users/{user_id}/photo.jpg'
+    result_path = f'resources/users/{user_id}/result.jpg'
+
+    if not os.path.exists(photo_path):
+        await send_text(update, context, "Сначала загрузите ваши фото")
+        return
+
+    prompt = load_prompt(query)
+    ai_edit_image(
+            input_image_path=photo_path,
+            prompt=prompt,
+            output_path=result_path
+    )
+    await send_photo(update, context, result_path)
+
+
 async def on_message(update, context):
     if session.mode == 'create':
         await create_message(update, context)
@@ -194,5 +214,6 @@ app.add_handler(MessageHandler(filters.PHOTO & ~filters.COMMAND, on_photo))
 
 app.add_handler(CallbackQueryHandler(create_button, pattern='^create_.*'))
 app.add_handler(CallbackQueryHandler(merge_button, pattern='^merge_.*'))
+app.add_handler(CallbackQueryHandler(party_button, pattern='^party.*'))
 
 app.run_polling()
