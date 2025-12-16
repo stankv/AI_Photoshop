@@ -104,8 +104,12 @@
 
 1.  **Python 3.13** и **pip** (менеджер пакетов)
 2.  **Telegram Bot Token:** Получите у [@BotFather](https://t.me/botfather)
-3.  **Google AI API Key:** Зарегистрируйтесь в [Google AI Studio](https://ai.google.dev/) и создайте API ключ
+3.  **Google AI API Key:** Зарегистрируйтесь в [Google AI Studio](https://aistudio.google.com/) и создайте API ключ
 4.  **Доступ к API:** Для работы требуется доступ к специальному эндпоинту (указан в конфигурации)
+
+[Инструкция по получению Telegram Bot Token](https://github.com/stankv/AI_Photoshop/blob/main/docs/TELEGRAM_TOKEN.md)
+
+[Инструкция по получению Google AI API Key](https://github.com/stankv/AI_Photoshop/blob/main/docs/GOOGLE_API_KEY.md)
 
 ### Установка и настройка
 
