@@ -1,7 +1,9 @@
 <div align="center">
     
 # 🎃 Halloween AI Photoshop Bot
-
+</div>
+<div align="center">
+    
 [![Python Version](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![Telegram Bot API](https://img.shields.io/badge/Telegram%20Bot%20API-22.4-blue)](https://core.telegram.org/bots/api)
 [![Google AI](https://img.shields.io/badge/Google%20AI%20Studio-Gemini%2FVEO-orange)](https://ai.google.dev/)
